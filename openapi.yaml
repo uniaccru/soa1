@@ -1,21 +1,20 @@
 openapi: 3.0.3
 info:
   title: Dragon Collection API
-  description: >-
-    API управления коллекцией объектов Dragon и API убийц драконов.
-    Все данные передаются в формате XML.
+  description: API управления коллекцией объектов Dragon и API убийц драконов. Все данные передаются в формате XML.
   version: 1.0.0
 tags:
-  - name: dragons
-    description: Основные операции с коллекцией драконов
-  - name: dragons-extra
-    description: Дополнительные операции над коллекцией драконов
-  - name: killer
-    description: Операции сервиса убийц драконов
+- name: dragons
+  description: Основные операции с коллекцией драконов
+- name: dragons-extra
+  description: Дополнительные операции над коллекцией драконов
+- name: killer
+  description: Операции сервиса убийц драконов
 paths:
   /dragons:
     post:
-      tags: [dragons]
+      tags:
+      - dragons
       summary: Добавить элемент
       description: Добавляет новый объект Dragon в коллекцию. Поля id и creationDate генерируются автоматически.
       requestBody:
@@ -33,30 +32,35 @@ paths:
                 $ref: '#/components/schemas/Dragon'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '503': &id001
+          $ref: '#/components/responses/ServiceUnavailable'
+        '502': &id002
+          $ref: '#/components/responses/BadGateway'
+        '504': &id003
+          $ref: '#/components/responses/GatewayTimeout'
     get:
-      tags: [dragons]
+      tags:
+      - dragons
       summary: Получить массив элементов
-      description: >-
-        Возвращает элементы коллекции с постраничным выводом. Поддерживает сортировку по одному полю
-        и фильтрацию по любой комбинации полей (условия объединяются по И).
+      description: Возвращает элементы коллекции с постраничным выводом. Поддерживает сортировку по одному полю и фильтрацию по любой комбинации полей (условия объединяются по И).
       parameters:
-        - $ref: '#/components/parameters/PageParam'
-        - $ref: '#/components/parameters/SizeParam'
-        - $ref: '#/components/parameters/SortByParam'
-        - $ref: '#/components/parameters/SortOrderParam'
-        - $ref: '#/components/parameters/FilterId'
-        - $ref: '#/components/parameters/FilterName'
-        - $ref: '#/components/parameters/FilterX'
-        - $ref: '#/components/parameters/FilterY'
-        - $ref: '#/components/parameters/FilterCreationDate'
-        - $ref: '#/components/parameters/FilterAge'
-        - $ref: '#/components/parameters/FilterDescription'
-        - $ref: '#/components/parameters/FilterWeight'
-        - $ref: '#/components/parameters/FilterColor'
-        - $ref: '#/components/parameters/FilterKillerName'
-        - $ref: '#/components/parameters/FilterKillerHeight'
-        - $ref: '#/components/parameters/FilterKillerEyeColor'
-        - $ref: '#/components/parameters/FilterKillerHairColor'
+      - $ref: '#/components/parameters/PageParam'
+      - $ref: '#/components/parameters/SizeParam'
+      - $ref: '#/components/parameters/SortByParam'
+      - $ref: '#/components/parameters/SortOrderParam'
+      - $ref: '#/components/parameters/FilterId'
+      - $ref: '#/components/parameters/FilterName'
+      - $ref: '#/components/parameters/FilterX'
+      - $ref: '#/components/parameters/FilterY'
+      - $ref: '#/components/parameters/FilterCreationDate'
+      - $ref: '#/components/parameters/FilterAge'
+      - $ref: '#/components/parameters/FilterDescription'
+      - $ref: '#/components/parameters/FilterWeight'
+      - $ref: '#/components/parameters/FilterColor'
+      - $ref: '#/components/parameters/FilterKillerName'
+      - $ref: '#/components/parameters/FilterKillerHeight'
+      - $ref: '#/components/parameters/FilterKillerEyeColor'
+      - $ref: '#/components/parameters/FilterKillerHairColor'
       responses:
         '200':
           description: Массив элементов
@@ -66,11 +70,15 @@ paths:
                 $ref: '#/components/schemas/DragonArray'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '503': *id001
+        '502': *id002
+        '504': *id003
   /dragons/{id}:
     parameters:
-      - $ref: '#/components/parameters/IdParam'
+    - $ref: '#/components/parameters/IdParam'
     get:
-      tags: [dragons]
+      tags:
+      - dragons
       summary: Получить элемент по ID
       description: Возвращает объект Dragon с указанным id.
       responses:
@@ -82,8 +90,12 @@ paths:
                 $ref: '#/components/schemas/Dragon'
         '404':
           $ref: '#/components/responses/NotFound'
+        '503': *id001
+        '502': *id002
+        '504': *id003
     put:
-      tags: [dragons]
+      tags:
+      - dragons
       summary: Обновить элемент
       description: Обновляет объект Dragon с указанным id.
       requestBody:
@@ -103,8 +115,12 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '404':
           $ref: '#/components/responses/NotFound'
+        '503': *id001
+        '502': *id002
+        '504': *id003
     delete:
-      tags: [dragons]
+      tags:
+      - dragons
       summary: Удалить элемент
       description: Удаляет объект Dragon с указанным id.
       responses:
@@ -112,28 +128,36 @@ paths:
           description: Элемент удалён
         '404':
           $ref: '#/components/responses/NotFound'
+        '503': *id001
+        '502': *id002
+        '504': *id003
   /dragons/by-weight/{weight}:
     delete:
-      tags: [dragons-extra]
+      tags:
+      - dragons-extra
       summary: Удалить все объекты с заданным weight
       description: Удаляет все объекты коллекции, у которых значение поля weight равно указанному.
       parameters:
-        - name: weight
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-            exclusiveMinimum: true
-            minimum: 0
+      - name: weight
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: true
+          minimum: 0
       responses:
         '204':
           description: Объекты удалены (если найдены)
         '400':
           $ref: '#/components/responses/BadRequest'
+        '503': *id001
+        '502': *id002
+        '504': *id003
   /dragons/average-age:
     get:
-      tags: [dragons-extra]
+      tags:
+      - dragons-extra
       summary: Среднее значение age
       description: Возвращает среднее значение поля age по всем объектам коллекции.
       responses:
@@ -143,9 +167,13 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/AverageAge'
+        '503': *id001
+        '502': *id002
+        '504': *id003
   /dragons/unique-descriptions:
     get:
-      tags: [dragons-extra]
+      tags:
+      - dragons-extra
       summary: Уникальные значения description
       description: Возвращает массив уникальных значений поля description по всем объектам коллекции.
       responses:
@@ -155,27 +183,31 @@ paths:
             application/xml:
               schema:
                 $ref: '#/components/schemas/UniqueDescriptions'
+        '503': *id001
+        '502': *id002
+        '504': *id003
   /killer/dragon/find-by-cave-depth/{max}:
     get:
-      tags: [killer]
+      tags:
+      - killer
       summary: Найти дракона по глубине пещеры
-      description: >-
-        Среди пещер с глубиной не более max находит дракона, живущего в самой глубокой
-        (mode=deepest, по умолчанию) или самой мелкой (mode=shallowest) пещере.
+      description: Среди пещер с глубиной не более max находит дракона, живущего в самой глубокой (mode=deepest, по умолчанию) или самой мелкой (mode=shallowest) пещере.
       parameters:
-        - name: max
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: mode
-          in: query
-          required: false
-          schema:
-            type: string
-            enum: [deepest, shallowest]
-            default: deepest
+      - name: max
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+      - name: mode
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - deepest
+          - shallowest
+          default: deepest
       responses:
         '200':
           description: Найденный дракон
@@ -185,40 +217,44 @@ paths:
                 $ref: '#/components/schemas/Dragon'
         '404':
           $ref: '#/components/responses/NotFound'
+        '503': *id001
+        '502': *id002
+        '504': *id003
   /killer/teams/create/{team-id}/{team-name}/{team-size}/{start-cave-id}:
     post:
-      tags: [killer]
+      tags:
+      - killer
       summary: Создать команду убийц драконов
       description: Создаёт новую команду убийц драконов и сохраняет её в базе данных.
       parameters:
-        - name: team-id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
-            exclusiveMinimum: true
-            minimum: 0
-        - name: team-name
-          in: path
-          required: true
-          schema:
-            type: string
-            minLength: 1
-        - name: team-size
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int32
-            exclusiveMinimum: true
-            minimum: 0
-        - name: start-cave-id
-          in: path
-          required: true
-          schema:
-            type: integer
-            format: int64
+      - name: team-id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
+          exclusiveMinimum: true
+          minimum: 0
+      - name: team-name
+        in: path
+        required: true
+        schema:
+          type: string
+          minLength: 1
+      - name: team-size
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int32
+          exclusiveMinimum: true
+          minimum: 0
+      - name: start-cave-id
+        in: path
+        required: true
+        schema:
+          type: integer
+          format: int64
       responses:
         '201':
           description: Команда создана
@@ -228,6 +264,9 @@ paths:
                 $ref: '#/components/schemas/Team'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '503': *id001
+        '502': *id002
+        '504': *id003
 components:
   parameters:
     IdParam:
@@ -261,14 +300,29 @@ components:
       required: false
       schema:
         type: string
-        enum: [id, name, x, y, creationDate, age, description, weight, color, killerName, killerHeight, killerEyeColor, killerHairColor]
+        enum:
+        - id
+        - name
+        - x
+        - y
+        - creationDate
+        - age
+        - description
+        - weight
+        - color
+        - killerName
+        - killerHeight
+        - killerEyeColor
+        - killerHairColor
     SortOrderParam:
       name: sortOrder
       in: query
       required: false
       schema:
         type: string
-        enum: [asc, desc]
+        enum:
+        - asc
+        - desc
         default: asc
     FilterId:
       name: id
@@ -368,15 +422,38 @@ components:
         application/xml:
           schema:
             $ref: '#/components/schemas/Error'
+    ServiceUnavailable:
+      description: Сервис временно недоступен (например, недоступна БД)
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Error'
+    BadGateway:
+      description: Получен некорректный ответ от смежного сервиса
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Error'
+    GatewayTimeout:
+      description: Превышено время ожидания ответа от смежного сервиса или БД
+      content:
+        application/xml:
+          schema:
+            $ref: '#/components/schemas/Error'
   schemas:
     Color:
       type: string
-      enum: [YELLOW, ORANGE, WHITE]
+      enum:
+      - YELLOW
+      - ORANGE
+      - WHITE
       xml:
         name: color
     Coordinates:
       type: object
-      required: [x, y]
+      required:
+      - x
+      - y
       properties:
         x:
           type: integer
@@ -391,7 +468,11 @@ components:
         name: coordinates
     Person:
       type: object
-      required: [name, height, eyeColor, hairColor]
+      required:
+      - name
+      - height
+      - eyeColor
+      - hairColor
       properties:
         name:
           type: string
@@ -409,7 +490,9 @@ components:
         name: killer
     DragonInput:
       type: object
-      required: [name, coordinates]
+      required:
+      - name
+      - coordinates
       properties:
         name:
           type: string
@@ -433,30 +516,32 @@ components:
           nullable: true
         color:
           allOf:
-            - $ref: '#/components/schemas/Color'
+          - $ref: '#/components/schemas/Color'
           nullable: true
         killer:
           allOf:
-            - $ref: '#/components/schemas/Person'
+          - $ref: '#/components/schemas/Person'
           nullable: true
       xml:
         name: dragon
     Dragon:
       allOf:
-        - type: object
-          required: [id, creationDate]
-          properties:
-            id:
-              type: integer
-              format: int64
-              exclusiveMinimum: true
-              minimum: 0
-              readOnly: true
-            creationDate:
-              type: string
-              format: date
-              readOnly: true
-        - $ref: '#/components/schemas/DragonInput'
+      - type: object
+        required:
+        - id
+        - creationDate
+        properties:
+          id:
+            type: integer
+            format: int64
+            exclusiveMinimum: true
+            minimum: 0
+            readOnly: true
+          creationDate:
+            type: string
+            format: date
+            readOnly: true
+      - $ref: '#/components/schemas/DragonInput'
       xml:
         name: dragon
     DragonArray:
